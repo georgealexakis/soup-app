@@ -1,0 +1,169 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+	<head>
+		<title>ALAGRO IQ IRRIGATION REPORTS TRANSFER TO myIQ V1.0</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	</head>
+	<body oncontextmenu="return false;">
+	<H1 align="center">IQ IRRIGATION REPORTS TRANSFER TO myIQ</H1>
+	<table width="600px" border="3" align="center">
+	<td width="300px" align="center">
+	<button type="button" onClick="TransferReports();"> START TRANFER </button>
+	&nbsp;	&nbsp;	&nbsp;
+	<input type="text" id="DateTextID" value="140716"  size="10"></input>
+	</td>
+	<tr>
+	<td width="300px" align="center"><textarea rows="30" cols="100" id="TextAreaID"></textarea>
+	</td>
+	</tr>
+	<tr>
+	</tr>
+	</table>
+	</body>
+
+<script>
+var SystemIpAdress='http://192.168.1.200:80';
+var ReportFileSystem='bfffdgf';
+var LocalServerIsUsed=0;
+ReadFromSystemVersionSettings();
+
+function ReadFromSystemVersionSettings()
+{
+	var txt=''
+	var url=SystemIpAdress+'/rpc/SetData/run 003';
+	txt = XmlSynchronousHttpRequest(url,3000,timeoutFired);
+	txt = decodeURIComponent(txt);
+    var Parameters = txt.split(";");
+	if (Parameters.length > 8)
+	{
+		VesrionTxt=Parameters[0];
+		SystemFileSystem=Parameters[1];
+		DataFileSystem=Parameters[2];
+		ReportFileSystem=Parameters[3];
+	}	
+}
+		
+function XmlSynchronousHttpRequest(url,timeout,timeoutfunction)
+{
+	for (i3=0;i3<5;i3++)
+	{
+	var txt='';
+	xmlHttp=GetXmlHttpObject()
+	if (xmlHttp==null)
+	{
+		alert ("Browser does not support HTTP Request");
+		return;
+	}
+	//*************************************************
+	XmlSynchronousHttpRequestTimer  = setTimeout(timeoutfunction,timeout);
+	if (LocalServerIsUsed)
+	{
+		//var Newurl = './on.php?d='+url;
+		var Newurl = LocalServerPath+url;
+	}
+	else
+	{
+		var Newurl = url;
+	}
+	//
+	
+	//alert(Newurl);
+	xmlHttp.open("GET",Newurl,false);
+	xmlHttp.send(null);
+	window.clearTimeout(XmlSynchronousHttpRequestTimer);
+	txt = decodeURIComponent(xmlHttp.responseText);
+	
+	var n = txt.indexOf("+++FILE+ERROR+++");
+	if (n == -1)
+	{
+		//document.body.style.backgroundColor = "#AAAAFF";
+		return txt;
+		//break;
+	}
+	else
+	{
+		if (i3==10) alert('Fail 10 Times For '+Newurl);	
+	}
+	}
+	//alert(txt);
+	//document.body.style.backgroundColor = "#AAAAFF"; 
+	return txt;
+}
+//********************************************************************************************************
+function GetXmlHttpObject()
+{ 
+	var objXMLHttp=null;
+	if (window.XMLHttpRequest)
+	{
+		objXMLHttp=new XMLHttpRequest();
+	}
+	else if (window.ActiveXObject)
+	{
+		objXMLHttp=new ActiveXObject("MSXML2.XMLHTTP.3.0");
+	}
+	return objXMLHttp;
+} 
+//********************************************************************************************************
+function timeoutFired()
+{
+	xmlHttp.abort();
+	document.getElementById("TextAreaID").value = "ΣΦΑΛΜΑ ΣΤΗΝ ΑΝΑΓΝΩΣΗ ΤΟΥ ΑΡΧΕΙΟΥ ΑΠΟ ΤΟ IQ!"
+}
+//********************************************************************************************************
+function ReportstimeoutFired()
+{
+	alert("Η ΣΥΣΚΕΥΗ ΔΕΝ ΑΝΤΑΠΟΚΡΙΝΕΤΑΙ! (ΕΚΤΟΣ ΧΡΟΝΟΥ)");
+}
+
+function TransferReports()
+{
+	document.getElementById("TextAreaID").value = "ΠΑΡΑΚΑΛΩ ΠΕΡΙΜΕΝΕΤΕ"
+	xmlHttp=GetXmlHttpObject();
+	//var url='http://'+SystemIpAdress+'/'+ReportFileSystem+'/RE'+DateToLoad+'.TXT';
+	var url=SystemIpAdress+'/'+ReportFileSystem+'/RE'+document.getElementById("DateTextID").value+'.TXT';
+	if (LocalServerIsUsed) { url = LocalServerPath+url; }
+	xmlHttp.open("GET",url,true)
+	xmlHttp.timeout = 40000;
+	xmlHttp.ontimeout = ReportstimeoutFired;
+	xmlHttp.onerror = function() { alert("ERROR"); };
+	//if (msieversion() > 0)
+	//{
+	//	xmlHttp.setRequestHeader('Cache-Control', 'no-cache');
+	//   xmlHttp.setRequestHeader('Pragma', 'no-cache');
+	//	xmlHttp.setRequestHeader('If-Modified-Since', 'Sat, 1 Jan 2000 00:00:00 GMT');
+	//}
+	xmlHttp.onreadystatechange=function()
+    {
+  		document.getElementById("TextAreaID").value = '';
+		if (xmlHttp.readyState==4 && xmlHttp.status==200)
+     	{
+			txt = decodeURIComponent(xmlHttp.responseText)
+			var ReportLines = txt.split("\n");
+			for (datalinesindex = 0; datalinesindex < ReportLines.length ; datalinesindex++)
+			{
+				var url='http://myiq.alagro.eu/vpn/iqdata.php?SN=AB12CD&DT=1&DAT='+ReportLines[datalinesindex];
+				txt2 = XmlSynchronousHttpRequest(url,3000,timeoutFired);
+				txt2 = decodeURIComponent(txt2);
+				document.getElementById("TextAreaID").value = document.getElementById("TextAreaID").value + datalinesindex+':' + txt2 + '\r\n';
+			}
+     	}
+		else if (xmlHttp.readyState==4 && xmlHttp.status!=200)
+     	{
+			txt = decodeURIComponent(xmlHttp.responseText)
+			var ReportLines = txt.split("\n");
+			for (datalinesindex = 0; datalinesindex < ReportLines.length ; datalinesindex++)
+			{
+				var url='http://myiq.alagro.eu/vpn/iqdata.php?SN=AB12CD&DT=1&DAT='+ReportLines[datalinesindex];
+				txt2 = XmlSynchronousHttpRequest(url,3000,timeoutFired);
+				txt2 = decodeURIComponent(txt2);
+				document.getElementById("TextAreaID").value = document.getElementById("TextAreaID").value + datalinesindex+':' + txt2 + '\r\n';
+
+
+			}
+     	}
+	}
+	//document.getElementById("IrrigationReportTitleDivID").innerHTML="ΠΑΡΑΚΑΛΩ ΠΕΡΙΜΕΝΕΤΕ";
+	xmlHttp.send(null);
+}
+</script>
+</html>

@@ -1,0 +1,407 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>IQ ΣΤΑΤΙΣΤΙΚΑ ΓΡΑΦΗΜΑΤΑ</title>
+<link type="text/css" rel="stylesheet" href="../dhxn/dhtmlx.css"  />
+<script type="text/javascript" language="JavaScript" src="../dhxn/dhtmlx.js" ></script>
+
+<script type="text/javascript" src="../network.txt"></script>
+<script type="text/javascript" src="./charts.js"></script>
+<script type="text/javascript" src="../util/jquery.js"></script>
+
+<style type="text/css">
+<!--
+.style6 {
+	font-family: digital-7, Arial, Helvetica, sans-serif;
+	font-size: 18px;
+	font-weight: bold;
+	color: #8080ff;
+}
+
+.modern-button {
+   border-top: 0px solid #96d1f8;
+   //background:-webkit-gradient(linear, 0% 0%, 0% 100%, from(#529DFF), to(#376CBF));
+   background:#529DFF;
+   padding: 4.5px 9px;
+   -webkit-border-radius: 33px;
+   -moz-border-radius: 33px;
+   border-radius: 33px;
+   -webkit-box-shadow: rgba(0,0,0,1) 0 1px 0;
+   -moz-box-shadow: rgba(0,0,0,1) 0 1px 0;
+   box-shadow: rgba(0,0,0,1) 0 1px 0;
+   text-shadow: rgba(0,0,0,.4) 0 1px 0;
+   color: white;
+   font-size: 11px;
+   font-family: Helvetica, Arial, Sans-Serif;
+   font-weight:bold;
+   text-decoration: none;
+   vertical-align: middle;
+   height:30px;
+}
+
+.red-button {
+	-webkit-border-radius:7px;
+	font-size:13px;
+	color:#291919;
+	font-weight:bold;
+	text-decoration:none;
+	background:-webkit-gradient(linear, 0% 0%, 0% 100%, from(#f34f23), to(#cf0014));
+    background:#f34f23;
+	padding:10px 20px 7px 20px;
+	-webkit-box-shadow:0px 1px 2px #999;
+	text-shadow:0px 1px 0px #fe6c6c;
+	border-bottom:1px solid #78000c;
+    height:30px;
+}
+
+</style>
+
+<script type="text/javascript">
+
+var DataLinesArray = new Array();
+var AllVirtualVariablesType = new Array();
+var AllVirtualVariablesName = new Array();
+var DataValuesArrayIndex = new Array();
+var myCalendarFrom;
+var myCalendarTo;
+
+
+$(function () {
+    $(document).ready(function() {
+		Highcharts.setOptions({
+			global: {
+				useUTC: false
+			},
+			lang: {
+				resetZoom:"ΕΠΑΝΑΦΟΡΑ ZOOM",
+				contextButtonTitle:"Εκτύπωση..",
+				printChart:"Εκτύπωση...",
+				shortMonths: ['Ιαν', 'Φεβ', 'Μαρ', 'Απρ', 'Μαι', 'Ιουν', 
+					'Ιουλ', 'Αυγ', 'Σεπ', 'Οκτ', 'Νοε', 'Δεκ']
+			}
+		});
+    	
+        var chart;
+        $('#IQ_Graph1Container').highcharts({
+            chart: {
+                zoomType: 'xy',
+				type: 'line',
+                animation: Highcharts.svg, // don't animate in old IE
+                marginRight: 10,
+				backgroundColor: {
+         			linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+			         stops: [
+            			[0, 'rgb(96, 96, 96)'],
+			            [1, 'rgb(16, 16, 16)']
+         			]
+		        },
+			    borderWidth: 1,
+			    borderRadius: 15,
+			    plotBackgroundColor: null,
+			    plotShadow: false,
+			    plotBorderWidth: 1
+				
+            },
+            title: {
+    	            text: 'IQ ΓΡΑΦΗΜΑ 1',
+         			style: {
+            		color: '#AAA',
+            		font: 'bold 12px Lucida Grande, Lucida Sans Unicode, Verdana, Arial, Helvetica, sans-serif'
+         			}
+            },
+            xAxis: {
+                type: 'datetime',
+                tickPixelInterval: 100,
+				gridLineWidth: 1,
+      			lineColor: '#999',
+			    tickColor: '#999',
+				labels: {
+		         style: {
+        		    color: '#999',
+		            fontWeight: 'bold'
+        		 }
+      			},
+		      	title: {
+		         style: {
+        	     color: '#AAA',
+            	 font: 'bold 12px Lucida Grande, Lucida Sans Unicode, Verdana, Arial, Helvetica, sans-serif'
+         		 }
+      			}
+
+            },
+            yAxis: {
+				alternateGridColor: null,
+      			minorTickInterval: null,
+		      	gridLineColor: 'rgba(255, 255, 255, .1)',
+      			minorGridLineColor: 'rgba(255,255,255,0.07)',
+				gridLineWidth: 1,
+				lineWidth: 0,
+      			tickWidth: 0,
+      			labels: {
+         			style: {
+            			color: '#999',
+            			fontWeight: 'bold'
+         			}
+      			},
+      			title: {
+					text: 'ΤΙΜΗ',
+         			style: {
+            		color: '#AAA',
+            		font: 'bold 12px Lucida Grande, Lucida Sans Unicode, Verdana, Arial, Helvetica, sans-serif'
+         			}
+      			}
+
+            },
+			plotOptions: {
+                	series: {
+             		   lineWidth: 2,
+					   connectNulls: true,
+		               shadow: true
+            		},
+			        line: {
+					 connectNulls: true,
+			         dataLabels: {
+            			color: '#CCC'
+			         },
+			         marker: {
+            			//lineColor: '#333',
+						radius:2
+						//fillColor: '#333'
+         			 }
+      				},
+            },
+            tooltip: {
+                formatter: function() {
+                        return '<b>'+ this.series.name +'</b><br/>'+
+                        Highcharts.dateFormat('%H:%M:%S %m/%d/%Y', this.x) +'<br/>'+
+                        Highcharts.numberFormat(this.y, 2);
+                }
+            },
+            legend: {
+                enabled: true
+            },
+            exporting: {
+                enabled: true
+            }
+
+        });
+    });
+    
+});
+//*******************************************************************************
+
+$(function () {
+    $(document).ready(function() {
+       
+    
+        var chart;
+        $('#IQ_Graph2Container').highcharts({
+            chart: {
+                zoomType: 'xy',
+				type: 'line',
+                animation: Highcharts.svg, // don't animate in old IE
+                marginRight: 10,
+				backgroundColor: {
+         			linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+			         stops: [
+            			[0, 'rgb(96, 96, 96)'],
+			            [1, 'rgb(16, 16, 16)']
+         			]
+		        },
+			    borderWidth: 1,
+			    borderRadius: 15,
+			    plotBackgroundColor: null,
+			    plotShadow: false,
+			    plotBorderWidth: 1
+            },
+            title: {
+    	            text: 'IQ ΓΡΑΦΗΜΑ 2',
+         			style: {
+            		color: '#AAA',
+            		font: 'bold 12px Lucida Grande, Lucida Sans Unicode, Verdana, Arial, Helvetica, sans-serif'
+         			}
+            },
+            xAxis: {
+                type: 'datetime',
+                tickPixelInterval: 100,
+				gridLineWidth: 1,
+      			lineColor: '#999',
+			    tickColor: '#999',
+				labels: {
+		         style: {
+        		    color: '#999',
+		            fontWeight: 'bold'
+        		 }
+      			},
+		      	title: {
+		         style: {
+        	     color: '#AAA',
+            	 font: 'bold 12px Lucida Grande, Lucida Sans Unicode, Verdana, Arial, Helvetica, sans-serif'
+         		 }
+      			}
+
+            },
+            yAxis: {
+				alternateGridColor: null,
+      			minorTickInterval: null,
+		      	gridLineColor: 'rgba(255, 255, 255, .1)',
+      			minorGridLineColor: 'rgba(255,255,255,0.07)',
+				gridLineWidth: 1,
+				lineWidth: 0,
+      			tickWidth: 0,
+      			labels: {
+         			style: {
+            			color: '#999',
+            			fontWeight: 'bold'
+         			}
+      			},
+      			title: {
+					text: 'ΤΙΜΗ',
+         			style: {
+            		color: '#AAA',
+            		font: 'bold 12px Lucida Grande, Lucida Sans Unicode, Verdana, Arial, Helvetica, sans-serif'
+         			}
+      			}
+
+            },
+			plotOptions: {
+                	series: {
+             		   lineWidth: 2,
+					   connectNulls: true,
+		               shadow: true
+            		},
+			        line: {
+					 connectNulls: true,
+			         dataLabels: {
+            			color: '#CCC'
+			         },
+			         marker: {
+            			//lineColor: '#333',
+						radius:2
+						//fillColor: '#333'
+         			 }
+      				},
+            },
+            tooltip: {
+                formatter: function() {
+                        return '<b>'+ this.series.name +'</b><br/>'+
+                        Highcharts.dateFormat('%H:%M:%S %m/%d/%Y', this.x) +'<br/>'+
+                        Highcharts.numberFormat(this.y, 2);
+                }
+            },
+            legend: {
+                enabled: true
+            },
+            exporting: {
+                enabled: true
+            }
+        });
+    });
+    
+});//*******************************************************************************
+//var DataToLoadInGraph1='';
+function LoadGraphData(gid)
+{
+	
+	//var gid=DataToLoadInGraph1;
+	var VariableMixedArray = document.getElementById('Graph'+gid+'VariablesList').options[document.getElementById('Graph'+gid+'VariablesList').selectedIndex].value.split(",");
+
+	var chart = $('#IQ_Graph'+gid+'Container').highcharts();
+	//alert(chart.series.length);
+	if (chart.series.length >= 4) 
+	{
+		alert("Επιτρεπονται μέχρι 4 σειρές δεδομένων ανά γράφημα");
+		return;
+	}
+	var data = [];
+	chart.addSeries(
+		{
+	   		type: 'line',
+			name: ' ' + VariableMixedArray[1]	
+		}  
+	);
+	DataArray = new Array(); 
+	for (i = 0 ; i < (DataLinesArray.length-1) ; i++) 
+	{
+		DataArray = DataLinesArray[i].split(";");
+		dfsplit   = DataArray[0].split(/[\/ .:]/);
+		dfnew     = dfsplit[0]+':'+dfsplit[1]+':'+dfsplit[2]+' '+dfsplit[4]+'-'+dfsplit[3]+'-'+dfsplit[5];
+		var d = Date.parse(dfnew);
+		var tmp=parseInt(VariableMixedArray[0])+1;
+		var Value = parseFloat(DataArray[tmp])/1.0;
+		data.push({ x: d,y: Value });
+	}
+	chart.series[chart.series.length-1].setData(data);
+	chart.redraw();
+}
+
+function ZoomOut()
+{
+	START_ZOOM_FACTOR = START_ZOOM_FACTOR - BUTTON_ZOOM_STEP;
+	$(document.body).css("zoom", START_ZOOM_FACTOR); 
+}
+
+function ZoomIN()
+{
+	START_ZOOM_FACTOR = START_ZOOM_FACTOR + BUTTON_ZOOM_STEP;
+	$(document.body).css("zoom", START_ZOOM_FACTOR); 
+}
+
+
+setTimeout(function() {
+	$(document.body).css("zoom", START_ZOOM_FACTOR); 
+}, 100);
+
+
+//***************************************************************************
+</script>
+</head>
+<body onLoad="doOnLoad();" oncontextmenu="return false;"  bgcolor="#CCFFCC">
+<script src="../util/charts/highcharts.js"></script>
+<script src="../util/charts/modules/exporting.js"></script>
+<table align="center" cellpadding="0" cellspacing="0" >
+<tr align="center"><td align="center" colspan="5">
+	<table  align="center" cellpadding="0" cellspacing="0"  width="100%">
+	<tr>
+	<td width="60"><input name="Input"  type="image" src="../images/ar_right.png" alt="ΠΙΣΩ"  onClick="window.close();window.open('../iq.htm');" width="58" height="58"/> </td>
+	<td width="60"><input name="Input"  type="image" src="../images/refresh.png" alt=""  onClick="location.reload(true);" width="58" height="58"/> </td>
+	<td width="60"><input name="Input"  type="image" src="../images/Zoom-In-icon.png" alt=""  onClick="ZoomIN();" width="58" height="58"/> </td>
+	<td width="60"><input name="Input"  type="image" src="../images/Zoom-Out-icon.png" alt=""  onClick="ZoomOut();" width="58" height="58"/> </td>
+	<td align="center" class="style6"  ><div id="MessageDIVID" class="red-button">ΠΑΡΑΚΑΛΩ ΠΕΡΙΜΕΝΕΤΕ</div></td>
+	</tr>
+	</table>
+</td></tr>
+
+<tr><td colspan="3" align="center">
+<table cellpadding="0" cellspacing="0" bgcolor="#CCDDCC">
+<tr>
+<td width="200" align="center">Από:<INPUT TYPE="text" ID="CalendarFrom" ></td>
+<td width="200" align="center">Εως:<INPUT TYPE="text" ID="CalendarTo"></td>
+<td width="400" align="center"><input type="button" onClick="LoadDataFile()" value="ΜΕΤΑΦΟΡΑ ΔΕΔΟΜΕΝΩΝ ΑΠΟ ΤΗΝ ΜΝΗΜΗ ΤΟΥ ΙQ" class="modern-button">
+</td>
+</tr>
+</table>
+</td>
+</tr>
+<tr><td colspan="3">&nbsp;</td></tr>
+<tr>
+<td colspan="3"><div id="IQ_Graph1Container" style="width: 800px; height: 350px; margin: 0 auto"></div></td>
+</tr>
+<tr>
+<td width="300" align="center"><input type="button" onClick="LoadGraphData('1')" value="ΠΡΟΣΘΗΚΗ ΣΤΟ ΓΡΑΦΗΜΑ ΤΗΣ ΤΙΜΗΣ" class="modern-button"></td>
+<td width="200" align="center"><select name="Graph1VariablesList" id="Graph1VariablesList" ></select></td>
+<td width="300" align="center"><input type="button" onClick="ClearGraph('1')" value="ΚΑΘΑΡΙΣΜΟΣ ΓΡΑΦΗΜΑΤΟΣ" class="modern-button"></td>
+</tr>
+<tr><td colspan="3">&nbsp;</td></tr>
+<tr>
+<td colspan="3"><div id="IQ_Graph2Container" style="width: 800px; height: 350px; margin: 0 auto"></div></td>
+</tr>
+<tr>
+<td width="300" align="center"><input type="button" onClick="LoadGraphData('2')" value="ΠΡΟΣΘΗΚΗ ΣΤΟ ΓΡΑΦΗΜΑ ΤΗΣ ΤΙΜΗΣ" class="modern-button"></td>
+<td width="200" align="center"><select name="Graph2VariablesList" id="Graph2VariablesList" ></select></td>
+<td width="300" align="center"><input type="button" onClick="ClearGraph('2')" value="ΚΑΘΑΡΙΣΜΟΣ ΓΡΑΦΗΜΑΤΟΣ" class="modern-button"></td>
+</tr>
+</table>
+</body>
+</html>
