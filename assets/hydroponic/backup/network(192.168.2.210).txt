@@ -1,0 +1,71 @@
+// JavaScript Document
+var IQSystemMySQLID=0;
+//var SystemIpAdress="ktimalazanaki.dahuaddns:80"
+//var SystemIpAdress="192.168.1.210:80";
+var SystemIpAdress="192.168.1.210:80";
+var SystemFileSystem='LOCALFS';
+//var SystemFileSystem='';
+var DataFileSystem='LOCALFS';
+//var DataFileSystem='';
+//var ReportFileSystem='LOCALFS';
+var ReportFileSystem='SD';
+var MAX_DATA_ACQUISITION=100000;
+var DataAcquisitionPeriod=1000;
+var MaxVariablesPerDataAcquisition=60;
+var DataAcquisitionIsASynchronous = 0;
+
+var SHOW_RELAY_01_08 = 1;
+var SHOW_RELAY_09_16 = 1;
+var SHOW_RELAY_17_24 = 1;
+var SHOW_RELAY_25_32 = 1;
+
+var SHOW_RELAY_33_40 = 0;
+var SHOW_RELAY_41_48 = 0;
+var SHOW_RELAY_49_56 = 0;
+var SHOW_RELAY_57_64 = 0;
+
+var ClimateControlVersion = 0;
+
+var UsePHPInMainWindow=0;
+var LocalServerIsUsed=0;
+
+//var VPNServerURL = 'http://143.233.183.205:8080/iq17/vpn.php';
+//var BBBURL	   = 'http://192.168.2.11:80/iq/on.php';
+
+var VPNServerURL = 'http://143.233.183.120:80/iqvpn/vpn.php';
+var BBBURL	 = '';
+
+//var LocalServerPath='./redirect.php?USESQL=0&VPNServerURL='+VPNServerURL+'&BBBURL='+BBBURL+'&IQURL=';
+
+//var LocalServerPath='./redirect.php?VPNServerURL=http://143.233.183.205:8080/iq17/vpn.php&BBBURL=http://192.168.2.15:8080/iq/on.php&IQURL=';
+var LocalServerPath='./local.php?d=';
+
+var SHOW_ON_LINE_GRAPHS =1;
+
+var SHOW_MIMIC_PICTURE_1=1;
+var SHOW_MIMIC_PICTURE_2=0;
+var SHOW_MIMIC_PICTURE_3=0;
+var SHOW_MIMIC_PICTURE_4=0;
+
+//var MIMIC_1_IMAGE = 'url(./mi_img/gr.jpg)';
+//var MIMIC_2_IMAGE = 'url(./mi_img/perix.png)';
+//var MIMIC_3_IMAGE = 'url(./mi_img/perix2.png)';
+//var MIMIC_4_IMAGE = 'url(./mi_img/kato.png)';
+
+var MIMIC_1_IMAGE = './mi_img/greenhouse.jpg'
+var MIMIC_2_IMAGE = './mi_img/greenhouse.jpg';
+var MIMIC_3_IMAGE = './mi_img/greenhouse.jpg';
+var MIMIC_4_IMAGE = './mi_img/greenhouse.jpg';
+
+var MAIN_TAB_MIN_HEIGHT = 730;
+
+var USE_INTERNAL_KEYBOARD = 0;
+var START_ZOOM_FACTOR     = 1.0;
+var BUTTON_ZOOM_STEP      = 0.05;
+var Math_Fun_XML_File = '';
+var MAX_FLOW_VALUE_IN_DISPALY = 20;
+var USE_SCROLL_TIME_PICKER  = 1;
+var DECIMAL_PLACE_IN_FLOATS = 1;
+
+var IQSendEmailURL = 'URL=http://myiq.alagro.eu/vpn/iq_mail.php';
+//http://myiq.alagro.eu:80/vpn/iqdata.php?SN=AB12CD

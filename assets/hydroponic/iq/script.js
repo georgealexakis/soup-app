@@ -66,7 +66,7 @@ function XmlSynchronousHttpRequest(url,timeout,timeoutfunction)
 	    xmlHttp.setRequestHeader('Pragma', 'no-cache');
 		xmlHttp.setRequestHeader('If-Modified-Since', 'Sat, 1 Jan 2000 00:00:00 GMT');
 	}
-	/////// Uncomment xmlHttp.send(null);
+	xmlHttp.send(null);
 	window.clearTimeout(XmlSynchronousHttpRequestTimer);
 	txt = decodeURIComponent(xmlHttp.responseText);
 	//alert(txt+' '+Newurl);
