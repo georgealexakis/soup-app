@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <title>PLC Management Tool</title>
+    <!-- Libraries -->
+    <link rel="stylesheet" href="index.css" />
+    <link rel="stylesheet" href="dark.css" />
+    <style>
+        .example {
+            overflow: auto;
+            box-sizing: border-box;
+            clear: both;
+        }
+
+        .example>.display {
+            box-sizing: border-box;
+            padding: 10px;
+        }
+
+        .example>.display {
+            text-align: center;
+            overflow: auto;
+            overflow: hidden;
+        }
+
+        .gauge-container.threeH>.gauge>.dial {
+            stroke: #334455;
+            stroke-width: 2;
+        }
+
+        .gauge-container.threeH>.gauge>.value {
+            stroke: #BE80FF;
+            stroke-width: 5;
+        }
+
+        .gauge-container.threeH>.gauge>.value-text {
+            fill: #BE80FF;
+        }
+
+        .gauge-container.threeP>.gauge>.dial {
+            stroke: #334455;
+            stroke-width: 2;
+        }
+
+        .gauge-container.threeP>.gauge>.value {
+            stroke: #F8774B;
+            stroke-width: 5;
+        }
+
+        .gauge-container.threeP>.gauge>.value-text {
+            fill: #F8774B;
+        }
+
+        .gauge-container.threeC>.gauge>.dial {
+            stroke: #334455;
+            stroke-width: 2;
+        }
+
+        .gauge-container.threeC>.gauge>.value {
+            stroke: #FF6DAF;
+            stroke-width: 5;
+        }
+
+        .gauge-container.threeC>.gauge>.value-text {
+            fill: #FF6DAF;
+        }
+
+        @media only screen and (min-device-width: 768px) {
+            .gauge-container {
+                width: 15rem;
+                height: 15rem;
+                margin: auto;
+            }
+        }
+
+        .form-switch {
+            margin: auto !important;
+            width: 100px;
+        }
+
+        .btn-cursor {
+            cursor: pointer;
+        }
+
+        .small,
+        small {
+            font-size: .7em;
+        }
+    </style>
+    <script type="text/javascript" src="highlight.pack.js"> </script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="row text-end mt-2">
+            <div class="dropdown">
+                <button class="btn btn-sm btn-danger dropdown-toggle" type="button" id="dropdownMenuButton2"
+                    data-bs-toggle="dropdown" aria-expanded="false">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                        class="bi bi-gear-wide" viewBox="0 0 20 20">
+                        <path
+                            d="M8.932.727c-.243-.97-1.62-.97-1.864 0l-.071.286a.96.96 0 0 1-1.622.434l-.205-.211c-.695-.719-1.888-.03-1.613.931l.08.284a.96.96 0 0 1-1.186 1.187l-.284-.081c-.96-.275-1.65.918-.931 1.613l.211.205a.96.96 0 0 1-.434 1.622l-.286.071c-.97.243-.97 1.62 0 1.864l.286.071a.96.96 0 0 1 .434 1.622l-.211.205c-.719.695-.03 1.888.931 1.613l.284-.08a.96.96 0 0 1 1.187 1.187l-.081.283c-.275.96.918 1.65 1.613.931l.205-.211a.96.96 0 0 1 1.622.434l.071.286c.243.97 1.62.97 1.864 0l.071-.286a.96.96 0 0 1 1.622-.434l.205.211c.695.719 1.888.03 1.613-.931l-.08-.284a.96.96 0 0 1 1.187-1.187l.283.081c.96.275 1.65-.918.931-1.613l-.211-.205a.96.96 0 0 1 .434-1.622l.286-.071c.97-.243.97-1.62 0-1.864l-.286-.071a.96.96 0 0 1-.434-1.622l.211-.205c.719-.695.03-1.888-.931-1.613l-.284.08a.96.96 0 0 1-1.187-1.186l.081-.284c.275-.96-.918-1.65-1.613-.931l-.205.211a.96.96 0 0 1-1.622-.434L8.932.727zM8 12.997a4.998 4.998 0 1 1 0-9.995 4.998 4.998 0 0 1 0 9.996z" />
+                    </svg>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+                    <li><a class="dropdown-item btn-cursor" id="connectBtn">Connect</a></li>
+                    <li><a class="dropdown-item btn-cursor" id="refreshBtn">Refresh</a></li>
+                    <li><a class="dropdown-item btn-cursor" id="syncBtn">Sync</a></li>
+                    <li>
+                        <hr class="dropdown-divider">
+                    </li>
+                    <li><a class="dropdown-item btn-cursor" id="exitBtn">Exit</a></li>
+                </ul>
+            </div>
+        </div>
+        <hr class="mt-2">
+        <div class="row text-center">
+            <h2>Conditions</h2>
+        </div>
+        <div class="row">
+            <div class="col">
+                <div class="example">
+                    <div class="display ">
+                        <div id="gauge3" class="gauge-container three"></div>
+                        <h6>Temperature (°C)</h6>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="example">
+                    <div class="display">
+                        <div id="gauge4" class="gauge-container threeH"></div>
+                        <h6>Humidity (%)</h6>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="example">
+                    <div class="display">
+                        <div id="gauge5" class="gauge-container threeP"></div>
+                        <h6>PAR (Joules/m<sup>2</sup>/s or W/m<sup>2</sup>)</h6>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="example">
+                    <div class="display">
+                        <div id="gauge6" class="gauge-container threeC"></div>
+                        <h6>Carbon Dioxide CO<sub>2</sub> (ppm)</h6>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr>
+        <div class="row text-center">
+            <h2>Actuators</h2>
+        </div>
+        <div class="row">
+            <div class="col">
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" checked>
+                    <label class="form-check-label" for="flexSwitchCheckChecked">Hatch 1</label>
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" checked>
+                    <label class="form-check-label" for="flexSwitchCheckChecked">Fan</label>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" checked>
+                    <label class="form-check-label" for="flexSwitchCheckChecked">Hatch 2</label>
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" checked>
+                    <label class="form-check-label" for="flexSwitchCheckChecked">Lights</label>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" checked>
+                    <label class="form-check-label" for="flexSwitchCheckChecked">Hatch 3</label>
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" checked>
+                    <label class="form-check-label" for="flexSwitchCheckChecked">Pad</label>
+                </div>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col">
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" checked>
+                    <label class="form-check-label" for="flexSwitchCheckChecked">Hatch 4</label>
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" checked>
+                    <label class="form-check-label" for="flexSwitchCheckChecked">Power</label>
+                </div>
+            </div>
+        </div>
+        <small>Status: <span id="connection">...</span> | Last synced: 13 July 2022</small>
+        <hr>
+    </div>
+
+    <script type="text/javascript" src="gauge.min.js"> </script>
+    <script>
+        var pad = function (tar) { }
+        var gauge3 = Gauge(
+            document.getElementById("gauge3"),
+            {
+                max: 100,
+                value: 50,
+                label: function (val) {
+                    return Math.round(val) + ' °C';
+                }
+            }
+        );
+
+        var gauge4 = Gauge(
+            document.getElementById("gauge4"),
+            {
+                max: 100,
+                value: 50,
+                label: function (val) {
+                    return Math.round(val) + ' %';
+                }
+            }
+        );
+
+        var gauge5 = Gauge(
+            document.getElementById("gauge5"),
+            {
+                max: 100,
+                value: 50,
+                label: function (val) {
+                    return Math.round(val) + ' W/m\u00B2';
+                }
+            }
+        );
+
+        var gauge6 = Gauge(
+            document.getElementById("gauge6"),
+            {
+                min: 0,
+                max: 10000,
+                value: 500,
+                label: function (val) {
+                    return Math.round(val) + ' ppm';
+                }
+            }
+        );
+
+        (function loop() {
+            var value3 = Math.random() * 100;
+            var value4 = Math.random() * 100;
+            var value5 = Math.random() * 100;
+            var value6 = Math.random() * 10000;
+            gauge3.setValueAnimated(value3, 1.5);
+            gauge4.setValueAnimated(value4, 1.5);
+            gauge5.setValueAnimated(value5, 1.5);
+            gauge6.setValueAnimated(value6, 1.5);
+            window.setTimeout(loop, 4000);
+        })();
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"
+        type="text/javascript"></script>
+    <script>
+        // Vars
+        let isConnected = false;
+        document.getElementById('connection').innerHTML = 'Not connected';
+        // Create a client instance
+        client = new Paho.MQTT.Client('broker.hivemq.com', 8000, 'soup-project-plc-' + Math.random());
+
+        // Set callback handlers
+        client.onConnectionLost = onConnectionLost;
+        client.onMessageArrived = onMessageArrived;
+
+        document.getElementById('connectBtn').addEventListener('click', () => {
+            // Connect the client
+            client.connect({ onSuccess: onConnect });
+        });
+
+        document.getElementById('refreshBtn').addEventListener('click', () => {
+            // Connect the client
+            client.connect({ onSuccess: onConnect });
+        });
+
+        document.getElementById('syncBtn').addEventListener('click', () => {
+            // Connect the client
+            client.connect({ onSuccess: onConnect });
+        });
+
+        document.getElementById('exitBtn').addEventListener('click', () => {
+            // Exit
+            // window.close();
+            console.log(client.isConnected());
+        });
+
+        // called when the client connects
+        function onConnect() {
+            // Once a connection has been made, make a subscription and send a message.
+            isConnected = true;
+            if (isConnected) {
+                document.getElementById('connection').innerHTML = 'Connected';
+            }
+            client.subscribe("World");
+            message = new Paho.MQTT.Message("Hello");
+            message.destinationName = "World";
+            client.send(message);
+        }
+
+        // called when the client loses its connection
+        function onConnectionLost(responseObject) {
+            if (responseObject.errorCode !== 0) {
+                console.log("onConnectionLost:" + responseObject.errorMessage);
+            }
+        }
+
+        // called when a message arrives
+        function onMessageArrived(message) {
+            console.log("onMessageArrived:" + message.payloadString);
+        }
+    </script>
+
+</body>
+
+</html>
