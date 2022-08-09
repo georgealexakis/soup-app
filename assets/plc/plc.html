@@ -70,12 +70,10 @@
             fill: #FF6DAF;
         }
 
-        @media only screen and (min-device-width: 768px) {
-            .gauge-container {
-                width: 15rem;
-                height: 15rem;
-                margin: auto;
-            }
+        .gauge-container {
+            width: 15rem;
+            height: 15rem;
+            margin: auto;
         }
 
         .form-switch {
@@ -126,7 +124,7 @@
             <div class="col">
                 <div class="example">
                     <div class="display ">
-                        <div id="gauge3" class="gauge-container three"></div>
+                        <div id="gaugeT" class="gauge-container three"></div>
                         <h6>Temperature (°C)</h6>
                     </div>
                 </div>
@@ -134,7 +132,7 @@
             <div class="col">
                 <div class="example">
                     <div class="display">
-                        <div id="gauge4" class="gauge-container threeH"></div>
+                        <div id="gaugeH" class="gauge-container threeH"></div>
                         <h6>Humidity (%)</h6>
                     </div>
                 </div>
@@ -142,7 +140,7 @@
             <div class="col">
                 <div class="example">
                     <div class="display">
-                        <div id="gauge5" class="gauge-container threeP"></div>
+                        <div id="gaugeP" class="gauge-container threeP"></div>
                         <h6>PAR (Joules/m<sup>2</sup>/s or W/m<sup>2</sup>)</h6>
                     </div>
                 </div>
@@ -150,7 +148,7 @@
             <div class="col">
                 <div class="example">
                     <div class="display">
-                        <div id="gauge6" class="gauge-container threeC"></div>
+                        <div id="gaugeC" class="gauge-container threeC"></div>
                         <h6>Carbon Dioxide CO<sub>2</sub> (ppm)</h6>
                     </div>
                 </div>
@@ -223,8 +221,8 @@
     <script type="text/javascript" src="gauge.min.js"> </script>
     <script>
         var pad = function (tar) { }
-        var gauge3 = Gauge(
-            document.getElementById("gauge3"),
+        var gT = Gauge(
+            document.getElementById('gaugeT'),
             {
                 max: 100,
                 value: 50,
@@ -234,8 +232,8 @@
             }
         );
 
-        var gauge4 = Gauge(
-            document.getElementById("gauge4"),
+        var gH = Gauge(
+            document.getElementById('gaugeH'),
             {
                 max: 100,
                 value: 50,
@@ -245,8 +243,8 @@
             }
         );
 
-        var gauge5 = Gauge(
-            document.getElementById("gauge5"),
+        var gP = Gauge(
+            document.getElementById('gaugeP'),
             {
                 max: 100,
                 value: 50,
@@ -256,8 +254,8 @@
             }
         );
 
-        var gauge6 = Gauge(
-            document.getElementById("gauge6"),
+        var gC = Gauge(
+            document.getElementById('gaugeC'),
             {
                 min: 0,
                 max: 10000,
@@ -269,14 +267,14 @@
         );
 
         (function loop() {
+            var value1 = Math.random() * 100;
+            var value2 = Math.random() * 100;
             var value3 = Math.random() * 100;
-            var value4 = Math.random() * 100;
-            var value5 = Math.random() * 100;
-            var value6 = Math.random() * 10000;
-            gauge3.setValueAnimated(value3, 1.5);
-            gauge4.setValueAnimated(value4, 1.5);
-            gauge5.setValueAnimated(value5, 1.5);
-            gauge6.setValueAnimated(value6, 1.5);
+            var value4 = Math.random() * 10000;
+            gT.setValueAnimated(value1, 1.5);
+            gH.setValueAnimated(value2, 1.5);
+            gP.setValueAnimated(value3, 1.5);
+            gC.setValueAnimated(value4, 1.5);
             window.setTimeout(loop, 4000);
         })();
     </script>
@@ -288,6 +286,7 @@
     <script>
         // Vars
         let isConnected = false;
+        const topics = ['plc-controller', 'plc-ui'];
         document.getElementById('connection').innerHTML = 'Not connected';
         // Create a client instance
         client = new Paho.MQTT.Client('broker.hivemq.com', 8000, 'soup-project-plc-' + Math.random());
@@ -298,17 +297,30 @@
 
         document.getElementById('connectBtn').addEventListener('click', () => {
             // Connect the client
-            client.connect({ onSuccess: onConnect });
+            if (!isConnected) {
+                client.connect({ onSuccess: onConnect });
+            } else {
+                isConnected = false;
+                client.disconnect();
+            }
         });
 
         document.getElementById('refreshBtn').addEventListener('click', () => {
             // Connect the client
-            client.connect({ onSuccess: onConnect });
+            if (isConnected) {
+                message = new Paho.MQTT.Message('refreshdata');
+                message.destinationName = topics[0];
+                client.send(message);
+            }
         });
 
         document.getElementById('syncBtn').addEventListener('click', () => {
             // Connect the client
-            client.connect({ onSuccess: onConnect });
+            if (isConnected) {
+                message = new Paho.MQTT.Message('syncdata');
+                message.destinationName = topics[0];
+                client.send(message);
+            }
         });
 
         document.getElementById('exitBtn').addEventListener('click', () => {
@@ -317,29 +329,33 @@
             console.log(client.isConnected());
         });
 
-        // called when the client connects
+        // Called when the client connects
         function onConnect() {
-            // Once a connection has been made, make a subscription and send a message.
-            isConnected = true;
-            if (isConnected) {
+            // Once a connection has been made, make a subscription and send a message
+            if (client.isConnected) {
+                isConnected = true;
                 document.getElementById('connection').innerHTML = 'Connected';
+                document.getElementById('connectBtn').innerHTML = 'Disconnect';
             }
-            client.subscribe("World");
-            message = new Paho.MQTT.Message("Hello");
-            message.destinationName = "World";
+            // Demo tests
+            client.subscribe(topics[1]);
+            message = new Paho.MQTT.Message('Hello');
+            message.destinationName = topics[0];
             client.send(message);
         }
 
-        // called when the client loses its connection
+        // Called when the client loses its connection
         function onConnectionLost(responseObject) {
-            if (responseObject.errorCode !== 0) {
-                console.log("onConnectionLost:" + responseObject.errorMessage);
+            if (!client.isConnected) {
+                isConnected = false;
+                document.getElementById('connection').innerHTML = 'Not connected';
+                document.getElementById('connectBtn').innerHTML = 'Connect';
             }
         }
 
-        // called when a message arrives
+        // Called when a message arrives
         function onMessageArrived(message) {
-            console.log("onMessageArrived:" + message.payloadString);
+            console.log('Message: ' + message.payloadString);
         }
     </script>
 
