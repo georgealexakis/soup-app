@@ -1,0 +1,282 @@
+<html>
+
+<head>
+    <title>SOUP Simulation</title>
+</head>
+
+<body>
+    <button id="auto">Auto Simulation</button>
+    <hr>
+    <button id="init">Start</button>
+    <hr>
+    <button id="b1">01</button>
+    <button id="b2">02</button>
+    <button id="b3">03</button>
+    <button id="b4">04</button>
+    <button id="b5">05</button>
+    <button id="b6">06</button>
+    <button id="b7">07</button>
+    <button id="b8">08</button>
+    <button id="b9">09</button>
+    <hr>
+    <button id="b10">11</button>
+    <button id="b11">12</button>
+    <button id="b12">13</button>
+    <button id="b13">14</button>
+    <button id="b14">15</button>
+    <button id="b15">16</button>
+    <button id="b16">17</button>
+    <button id="b17">18</button>
+    <button id="b18">19</button>
+    <hr>
+    <button id="b19">Deploy</button>
+    <button id="b20">Undeploy</button>
+    <br>
+    <button id="b21">Start spraying</button>
+    <button id="b22">Stop spraying</button>
+    <br>
+    <button id="b23">Height Inc.</button>
+    <button id="b24">Height Dec.</button>
+
+    <script type="text/javascript">
+        let i = 0;
+        let j = 0;
+        let t = 0;
+        let isMoving = false;
+        var platform = 0.0;
+        let job = 0;
+        var ws = new WebSocket('wss://soup-websocket.herokuapp.com');
+        var plants = ['06', '16', '13', '23'];
+        var plantIds = [7, 7, 13, 13];
+        var pCounter = 0;
+        var direction = 0;
+        /////////////// JSON MESSAGES ///////////////
+        var JSON_M1 = {
+            task: 'inspection',
+            status: 'pending',
+            meta: [1078, 7, 8, 1],
+            multispectral: 0,
+            realsense: 0,
+            arm: 0,
+            platform: 0,
+            odometry: '00'
+        };
+        var JSON_M2 = {
+            task: 'spraying',
+            status: 'pending',
+            meta: [1102, 3, 1, 1],
+            spray: 0,
+            arm: 0,
+            platform: 0.0
+        };
+        var JSON_M3 = {
+            task: 'harvesting',
+            status: 'pending',
+            meta: [1078, 1, 8, 1],
+            multispectral: 0,
+            realsense: 0,
+            arm: 0,
+            odometry: '00'
+        };
+        var JSON_M4 = {
+            task: 'pollination',
+            status: 'pending',
+            meta: [1078, 1, 8, 1],
+            multispectral: 0,
+            realsense: 0,
+            arm: 0,
+            odometry: '00'
+        };
+        /////////////// AUTOMATIC SIMULATION ///////////////
+        var loop = null;
+        document.getElementById('auto').addEventListener('click', () => {
+            clearInterval(loop);
+            isMoving = true;
+            loop = setInterval(() => {
+                moving(plants[pCounter]);
+                inspection();
+                // Publish data
+                console.log(JSON_M1);
+                ws.send(JSON.stringify(JSON_M1));
+            }, 1000);
+        });
+        function moving(plant) {
+            if (isMoving) {
+                if (j === 9 && direction === 0) {
+                    i++;
+                    direction = 1;
+                    j = 8;
+                }
+                if (j < 0 && direction === 1) {
+                    i++;
+                    direction = 0;
+                    j = 0;
+                }
+                if (i === 4) {
+                    i = 0;
+                }
+                JSON_M1.odometry = '' + i + '' + j;
+                if (direction === 0) {
+                    j++;
+                } else {
+                    j--;
+                }
+                if (JSON_M1.odometry === plant) {
+                    isMoving = false;
+                }
+            }
+        }
+        /////////////// SIMULATION OF INSPECTION ///////////////
+        function inspection() {
+            if (!isMoving) {
+                if (t === 0) {
+                    JSON_M1.arm = 1;
+                }
+                if (t % 2 === 0) {
+                    JSON_M1.multispectral = 1;
+                    JSON_M1.realsense = 1;
+                }
+                if (t % 4 === 0) {
+                    JSON_M1.multispectral = 0;
+                    JSON_M1.realsense = 0;
+                }
+                if (t === 20) {
+                    JSON_M1.platform = 1;
+                }
+                if (t === 40) {
+                    JSON_M1.platform = 0;
+                    JSON_M1.arm = 0;
+                    JSON_M1.meta[1] = plantIds[pCounter];
+                    isMoving = true;
+                    pCounter++;
+                }
+                t++;
+            } else {
+                t = 0;
+            }
+        }
+        /////////////// START SIMULATION ///////////////
+        document.getElementById('init').addEventListener('click', () => {
+            JSON_M2 = {
+                task: 'spraying',
+                status: 'pending',
+                meta: [1102, 3, 1, 1],
+                spray: 0,
+                arm: 0,
+                platform: 0.0
+            };
+            ws.send(JSON.stringify(JSON_M2));
+        });
+        document.getElementById('b1').addEventListener('click', () => {
+            JSON_M2.odometry = '00';
+            ws.send(JSON.stringify(JSON_M2));
+        });
+        document.getElementById('b2').addEventListener('click', () => {
+            JSON_M2.odometry = '01';
+            ws.send(JSON.stringify(JSON_M2));
+        });
+        document.getElementById('b3').addEventListener('click', () => {
+            JSON_M2.odometry = '02';
+            ws.send(JSON.stringify(JSON_M2));
+        });
+        document.getElementById('b4').addEventListener('click', () => {
+            JSON_M2.odometry = '03';
+            ws.send(JSON.stringify(JSON_M2));
+        });
+        document.getElementById('b5').addEventListener('click', () => {
+            JSON_M2.odometry = '04';
+            ws.send(JSON.stringify(JSON_M2));
+        });
+        document.getElementById('b6').addEventListener('click', () => {
+            JSON_M2.odometry = '05';
+            ws.send(JSON.stringify(JSON_M2));
+        });
+        document.getElementById('b7').addEventListener('click', () => {
+            JSON_M2.odometry = '06';
+            ws.send(JSON.stringify(JSON_M2));
+        });
+        document.getElementById('b8').addEventListener('click', () => {
+            JSON_M2.odometry = '07';
+            ws.send(JSON.stringify(JSON_M2));
+        });
+        document.getElementById('b9').addEventListener('click', () => {
+            JSON_M2.odometry = '08';
+            ws.send(JSON.stringify(JSON_M2));
+        });
+        document.getElementById('b10').addEventListener('click', () => {
+            JSON_M2.odometry = '10';
+            ws.send(JSON.stringify(JSON_M2));
+        });
+        document.getElementById('b11').addEventListener('click', () => {
+            JSON_M2.odometry = '11';
+            ws.send(JSON.stringify(JSON_M2));
+        });
+        document.getElementById('b12').addEventListener('click', () => {
+            JSON_M2.odometry = '12';
+            ws.send(JSON.stringify(JSON_M2));
+        });
+        document.getElementById('b13').addEventListener('click', () => {
+            JSON_M2.odometry = '13';
+            ws.send(JSON.stringify(JSON_M2));
+        });
+        document.getElementById('b14').addEventListener('click', () => {
+            JSON_M2.odometry = '14';
+            ws.send(JSON.stringify(JSON_M2));
+        });
+        document.getElementById('b15').addEventListener('click', () => {
+            JSON_M2.odometry = '15';
+            ws.send(JSON.stringify(JSON_M2));
+        });
+        document.getElementById('b16').addEventListener('click', () => {
+            JSON_M2.odometry = '16';
+            ws.send(JSON.stringify(JSON_M2));
+        });
+        document.getElementById('b17').addEventListener('click', () => {
+            JSON_M2.odometry = '17';
+            ws.send(JSON.stringify(JSON_M2));
+        });
+        document.getElementById('b18').addEventListener('click', () => {
+            JSON_M2.odometry = '18';
+            ws.send(JSON.stringify(JSON_M2));
+        });
+        /////////////// EXTRA BUTTONS ///////////////
+        document.getElementById('b19').addEventListener('click', () => {
+            JSON_M2.arm = 1;
+            ws.send(JSON.stringify(JSON_M2));
+        });
+        document.getElementById('b20').addEventListener('click', () => {
+            JSON_M2.arm = 0;
+            ws.send(JSON.stringify(JSON_M2));
+        });
+        document.getElementById('b21').addEventListener('click', () => {
+            JSON_M2.spray = 1;
+            ws.send(JSON.stringify(JSON_M2));
+        });
+        document.getElementById('b22').addEventListener('click', () => {
+            JSON_M2.spray = 0;
+            ws.send(JSON.stringify(JSON_M2));
+        });
+        document.getElementById('b23').addEventListener('click', () => {
+            if (platform <= 1.2) {
+                platform = platform + 0.1;
+            }
+            if (platform > 1.2) {
+                platform = 1.2;
+            }
+            JSON_M2.platform = platform.toFixed(1);
+            ws.send(JSON.stringify(JSON_M2));
+        });
+        document.getElementById('b24').addEventListener('click', () => {
+            if (platform > 0) {
+                platform = platform - 0.1;
+            }
+            if (platform < 0) {
+                platform = 0;
+            }
+            JSON_M2.platform = platform.toFixed(1);
+            ws.send(JSON.stringify(JSON_M2));
+        });
+    </script>
+</body>
+
+</html>
